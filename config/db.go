@@ -24,7 +24,7 @@ func SetupDB() *sql.DB {
 	dbName := os.Getenv("DB_NAME")
 
 	connectionStr := fmt.Sprintf(
-		"host=%s port=%s user=%s passoword=%s dbname=%s sslmode=disable",
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName,
 	)
 
