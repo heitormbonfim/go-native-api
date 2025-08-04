@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/heitormbonfim/go-native-api/config"
 	"github.com/heitormbonfim/go-native-api/models"
 )
@@ -18,7 +19,14 @@ func main() {
 		return
 	}
 
-	err = http.ListenAndServe(":8080", nil)
+	router := mux.NewRouter()
+	// endpoints
+	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Alive!"))
+	}).Methods("GET")
+
+	err = http.ListenAndServe(":8080", router)
 	if err != nil {
 		log.Fatal(err)
 		return
