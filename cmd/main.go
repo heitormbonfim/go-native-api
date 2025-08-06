@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/heitormbonfim/go-native-api/config"
+	"github.com/heitormbonfim/go-native-api/handlers"
 	"github.com/heitormbonfim/go-native-api/models"
 )
 
@@ -25,6 +26,10 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Alive!"))
 	}).Methods("GET")
+
+	// Tasks Endpoints
+	taskHandler := handlers.NewTaskHandler(dbConnection)
+	router.HandleFunc("/tasks", taskHandler.GetTasks).Methods("GET")
 
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {
