@@ -21,11 +21,11 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	// endpoints
-	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Alive!"))
-	}).Methods("GET")
+	// Endpoints
+
+	// Health
+	healthHandler := handlers.NewHealthHandler()
+	router.HandleFunc("/health", healthHandler.GetHealth).Methods("GET")
 
 	// Tasks Endpoints
 	taskHandler := handlers.NewTaskHandler(dbConnection)
