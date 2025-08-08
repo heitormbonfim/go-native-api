@@ -59,3 +59,35 @@ func (taskHandler *TaskHandler) GetTasks(wtr http.ResponseWriter, req *http.Requ
 		http.Error(wtr, err.Error(), http.StatusInternalServerError)
 	}
 }
+
+func (taskHandler *TaskHandler) CreateTask(wtr http.ResponseWriter, req *http.Request) {
+	var task models.Task
+	err := json.NewDecoder(req.Body).Decode(&task)
+	if err != nil {
+		http.Error(wtr, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = taskHandler.DB.Exec(`--sql
+	INSERT INTO tasks (title, description, status)
+	VALUES ($1, $2, $3)
+	`, &task.Title, &task.Description, &task.Status)
+	if err != nil {
+		http.Error(wtr, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	wtr.Header().Set("Content-Type", "application/json")
+	wtr.WriteHeader(http.StatusCreated)
+	if err := json.NewEncoder(wtr).Encode(task); err != nil {
+		http.Error(wtr, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (taskHandler *TaskHandler) UpdateTask(wtr http.ResponseWriter, req *http.Request) {
+
+}
+
+func (taskHandler *TaskHandler) DeleteTask(wtr http.ResponseWriter, req *http.Request) {
+
+}

@@ -30,6 +30,9 @@ func main() {
 	// Tasks Endpoints
 	taskHandler := handlers.NewTaskHandler(dbConnection)
 	router.HandleFunc("/tasks", taskHandler.GetTasks).Methods("GET")
+	router.HandleFunc("/task", taskHandler.CreateTask).Methods("POST")
+	router.HandleFunc("/task/{id}", taskHandler.UpdateTask).Methods("PUT")
+	router.HandleFunc("/task/{id}", taskHandler.DeleteTask).Methods("DELETE")
 
 	err = http.ListenAndServe(":8080", router)
 	if err != nil {
