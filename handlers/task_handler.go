@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/heitormbonfim/go-native-api/models"
 )
 
@@ -85,7 +86,31 @@ func (taskHandler *TaskHandler) CreateTask(wtr http.ResponseWriter, req *http.Re
 }
 
 func (taskHandler *TaskHandler) UpdateTask(wtr http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	id := vars["id"]
+	var task models.Task
 
+	err := json.NewDecoder(req.Body).Decode(&task)
+	if err != nil {
+		http.Error(wtr, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = taskHandler.DB.Exec(`--sql
+	UPDATE tasks 
+	SET title = $1, description = $2, status = $3
+	WHERE id = $4 
+	`, &task.Title, &task.Description, &task.Status, id)
+	if err != nil {
+		http.Error(wtr, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	wtr.Header().Set("Content-Type", "application/json")
+	wtr.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(wtr).Encode(task); err != nil {
+		http.Error(wtr, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func (taskHandler *TaskHandler) DeleteTask(wtr http.ResponseWriter, req *http.Request) {
