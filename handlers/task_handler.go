@@ -96,6 +96,20 @@ func (taskHandler *TaskHandler) UpdateTask(wtr http.ResponseWriter, req *http.Re
 		return
 	}
 
+	var exists bool
+	err = taskHandler.DB.QueryRow(`--sql
+	SELECT EXISTS (SELECT 1 FROM tasks WHERE id = $1)
+	`, id).Scan(&exists)
+	if err != nil {
+		http.Error(wtr, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if !exists {
+		http.Error(wtr, "Task not found", http.StatusNotFound)
+		return
+	}
+
 	_, err = taskHandler.DB.Exec(`--sql
 	UPDATE tasks 
 	SET title = $1, description = $2, status = $3
@@ -114,5 +128,30 @@ func (taskHandler *TaskHandler) UpdateTask(wtr http.ResponseWriter, req *http.Re
 }
 
 func (taskHandler *TaskHandler) DeleteTask(wtr http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	id := vars["id"]
 
+	var exists bool
+	err := taskHandler.DB.QueryRow(`--sql
+	SELECT EXISTS (SELECT 1 FROM tasks WHERE id = $1)
+	`, id).Scan(&exists)
+	if err != nil {
+		http.Error(wtr, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if !exists {
+		http.Error(wtr, "Task not found", http.StatusNotFound)
+		return
+	}
+
+	_, err = taskHandler.DB.Exec(`--sql
+	DELETE FROM tasks WHERE id = $1
+	`, id)
+	if err != nil {
+		http.Error(wtr, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	wtr.WriteHeader(http.StatusNoContent)
 }
