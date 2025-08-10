@@ -21,9 +21,8 @@ func main() {
 	}
 
 	router := mux.NewRouter()
-	// Endpoints
 
-	// Health
+	// Health Endpoint
 	healthHandler := handlers.NewHealthHandler()
 	router.HandleFunc("/health", healthHandler.GetHealth).Methods("GET")
 
